@@ -45,8 +45,12 @@ module Embulk
             image: Hash.new{|h,k| h[k] = {}},
             features: @features
           }
-          image_body = get_image_body(image_path)
-          request[:image][:content] = Base64.encode64(image_body)
+          if image_path =~ /gs\:\/\//
+            request[:image][:source][:gcs_image_uri] = image_path
+          else
+            image_body = get_image_body(image_path)
+            request[:image][:content] = Base64.encode64(image_body)
+          end
           request
         end
 
