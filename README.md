@@ -26,7 +26,7 @@ Very easy image recognition.
     - { image_path: 'http://www.embulk.org/docs/_images/embulk-logo.png' }
 ```
 
-* respond localfile path and http URI.
+* respond localfile path and http URI(http://〜) and GCS Image(gs://〜).
 
 ### setting
 ```yaml
