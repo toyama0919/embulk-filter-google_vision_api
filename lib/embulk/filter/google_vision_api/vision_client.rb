@@ -8,8 +8,9 @@ module Embulk
   module Filter
     class GoogleVisionApi < FilterPlugin
       class VisionClient
-        def initialize(features, google_api_key)
-          uri = URI.parse("https://vision.googleapis.com/v1/images:annotate?key=#{google_api_key}")
+        ENDPOINT = "https://vision.googleapis.com/v1/images:annotate"
+        def initialize(features:, google_api_key:)
+          uri = URI.parse("#{ENDPOINT}?key=#{google_api_key}")
           @http = Net::HTTP.new(uri.host, uri.port)
           @http.use_ssl = true
           @http.verify_mode = OpenSSL::SSL::VERIFY_NONE

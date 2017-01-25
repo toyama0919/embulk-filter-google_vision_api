@@ -28,7 +28,7 @@ module Embulk
         @image_path_key_name = task['image_path_key_name']
         @delay = task['delay']
         @image_num_per_request = task['image_num_per_request']
-        @client = VisionClient.new(task['features'], task['google_api_key'])
+        @client = VisionClient.new(features: task['features'], google_api_key: task['google_api_key'])
       end
 
       def close
