@@ -1,16 +1,9 @@
-require "json"
-require "net/http"
-require "uri"
-require "openssl"
-require "base64"
-require "pp"
+require_relative "google_vision_api/vision_client"
 
 module Embulk
   module Filter
-
     class GoogleVisionApi < FilterPlugin
       Plugin.register_filter("google_vision_api", self)
-      ENDPOINT_PREFIX = "https://vision.googleapis.com/v1/images:annotate"
 
       def self.transaction(config, in_schema, &control)
         task = {
@@ -32,16 +25,10 @@ module Embulk
       end
 
       def init
-        @uri = URI.parse("#{ENDPOINT_PREFIX}?key=#{task['google_api_key']}")
-        @http = Net::HTTP.new(@uri.host, @uri.port)
-        @http.use_ssl = true
-        @http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-        @post = Net::HTTP::Post.new(@uri.request_uri, initheader = {'Content-Type' =>'application/json'})
         @image_path_key_name = task['image_path_key_name']
-        @out_key_name = task['out_key_name']
         @delay = task['delay']
         @image_num_per_request = task['image_num_per_request']
-        @features = task['features']
+        @client = VisionClient.new(task['features'], task['google_api_key'])
       end
 
       def close
@@ -54,28 +41,13 @@ module Embulk
 
         record_groups.each do |records|
           requests = []
-          records.each do |record|
-            request = {
-              image: {},
-              features: @features
-            }
-            image_body = get_image_body(record)
-            request[:image][:content] = Base64.encode64(image_body)
-            requests << request
+          images = records.map do |record|
+            record[@image_path_key_name]
           end
-          body = {
-            requests: requests
-          }
-          @post.body = body.to_json
-          Embulk.logger.debug "request body => #{@post.body}"
 
-          response_hash = {}
-          @http.start do |h|
-            response = h.request(@post)
-            response_hash = JSON.parse(response.body)
-          end
+          response = @client.request(images)
           records.each_with_index do |record, i|
-            recognized = response_hash['responses'][i]
+            recognized = response['responses'][i]
             Embulk.logger.warn "Error image => [#{record[@image_path_key_name]}] #{recognized}" if recognized.key?("error")
             page_builder.add(record.values + [recognized])
           end
@@ -86,16 +58,6 @@ module Embulk
 
       def finish
         page_builder.finish
-      end
-
-      private
-      def get_image_body(record)
-        image_path = record[@image_path_key_name]
-        if image_path =~ /https?\:\/\//
-          Net::HTTP.get_response(URI.parse(image_path)).body rescue ""
-        else
-          File.read(image_path) rescue ""
-        end
       end
     end
   end
