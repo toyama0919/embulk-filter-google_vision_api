@@ -47,8 +47,8 @@ module Embulk
 
           response = @client.request(images)
           records.each_with_index do |record, i|
-            recognized = response['responses'][i]
-            Embulk.logger.warn "Error image => [#{record[@image_path_key_name]}] #{recognized}" if recognized.key?("error")
+            recognized = response.key?("error") ? response : response['responses'][i]
+            Embulk.logger.warn "Error image => [#{record[@image_path_key_name]}] #{recognized}" if response.key?("error")
             page_builder.add(record.values + [recognized])
           end
 
