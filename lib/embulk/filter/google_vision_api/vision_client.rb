@@ -30,6 +30,7 @@ module Embulk
 
         private
         def get_body(images)
+          Embulk.logger.info("processing => #{images}")
           {
             requests: get_requests(images)
           }
