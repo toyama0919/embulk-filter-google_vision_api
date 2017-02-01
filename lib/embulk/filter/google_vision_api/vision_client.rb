@@ -30,7 +30,7 @@ module Embulk
 
         private
         def get_body(images)
-          Embulk.logger.info("processing #{@features.map{ |h| h['type'] }.join(',')} => #{images}")
+          Embulk.logger.info("Google Cloud Vision API #{@features.map{ |h| h['type'] }.join(',')} processing.. => #{images}")
           {
             requests: get_requests(images)
           }
