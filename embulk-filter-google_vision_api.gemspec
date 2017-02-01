@@ -1,7 +1,7 @@
 
 Gem::Specification.new do |spec|
   spec.name          = "embulk-filter-google_vision_api"
-  spec.version       = "0.2.1"
+  spec.version       = "0.2.2"
   spec.authors       = ["toyama0919"]
   spec.summary       = "Google Vision Api filter plugin for Embulk"
   spec.description   = "Google Vision Api filter plugin for Embulk. Very easy image recognition."
