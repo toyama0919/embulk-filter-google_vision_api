@@ -1,6 +1,5 @@
 require "json"
 require "net/http"
-require "openssl"
 require "base64"
 require 'addressable/uri'
 
@@ -13,7 +12,6 @@ module Embulk
           uri = URI.parse("#{ENDPOINT}?key=#{google_api_key}")
           @http = Net::HTTP.new(uri.host, uri.port)
           @http.use_ssl = true
-          @http.verify_mode = OpenSSL::SSL::VERIFY_NONE
           @post = Net::HTTP::Post.new(uri.request_uri, initheader = {'Content-Type' =>'application/json'})
           @features = features
         end
