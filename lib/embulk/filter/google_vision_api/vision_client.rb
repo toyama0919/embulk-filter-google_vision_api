@@ -1,8 +1,8 @@
 require "json"
 require "net/http"
-require "uri"
 require "openssl"
 require "base64"
+require 'addressable/uri'
 
 module Embulk
   module Filter
@@ -58,10 +58,13 @@ module Embulk
 
         def get_image_body(image_path)
           if image_path =~ /https?\:\/\//
-            Net::HTTP.get_response(URI.parse(image_path)).body rescue ""
+            response = Net::HTTP.get_response(Addressable::URI.parse(image_path))
+            response.body
           else
-            File.read(image_path) rescue ""
+            File.read(image_path)
           end
+        rescue => e
+          ""
         end
       end
     end
